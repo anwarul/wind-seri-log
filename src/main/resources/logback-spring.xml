@@ -1,0 +1,154 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/info-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app_name":"LogsToRedis_3.2.9"}</customFields>
+            <fieldNames>
+                <timestamp>@t</timestamp>
+                <message>@m</message>
+                <context>@i</context>
+                <level>@l</level>
+                <thread>@thread</thread>
+                <logger>@logger</logger>
+            </fieldNames>
+            <additionalField>
+                <fieldName>RequestId</fieldName>
+                <value>%X{RequestId}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>UserId</fieldName>
+                <value>%X{UserId}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>SCW</fieldName>
+                <value>%X{Scw}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>UserName</fieldName>
+                <value>%X{Username}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>RequestPath</fieldName>
+                <value>%X{RequestPath}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>RequestBody</fieldName>
+                <value>%X{RequestBody}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>SourceContext</fieldName>
+                <value>%X{SourceContext}</value>
+            </additionalField>
+            <timeZone>UTC</timeZone>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- File appender for error logs -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/error-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app_name":"LogsToRedis_3.2.9"}</customFields>
+            <fieldNames>
+                <timestamp>@t</timestamp>
+                <message>@m</message>
+                <context>@i</context>
+                <level>@l</level>
+                <thread>@thread</thread>
+                <logger>@logger</logger>
+                <exceptionFieldName>stack_trace</exceptionFieldName>
+            </fieldNames>
+            <additionalField>
+                <fieldName>RequestId</fieldName>
+                <value>%X{RequestId}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>UserId</fieldName>
+                <value>%X{UserId}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>SCW</fieldName>
+                <value>%X{Scw}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>UserName</fieldName>
+                <value>%X{Username}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>RequestPath</fieldName>
+                <value>%X{RequestPath}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>RequestBody</fieldName>
+                <value>%X{RequestBody}</value>
+            </additionalField>
+            <additionalField>
+                <fieldName>SourceContext</fieldName>
+                <value>%X{SourceContext}</value>
+            </additionalField>
+            <timeZone>UTC</timeZone>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- Seq Appender for structured logging -->
+    <appender name="SEQ" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <!-- Destination is a combination of host and port -->
+        <destination>localhost:5341</destination>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <logLevel/>
+                <loggerName/>
+                <threadName/>
+                <message/>
+                <uuid/>
+                <mdc/>
+
+                <!-- Pattern for Custom Fields -->
+                <pattern>
+                    <pattern>
+                        {
+                        "@m": "%msg",
+                        "@i": "%X{requestId}",
+                        "@r": ["%X{responseTime}"],
+                        "@tr": "%X{traceId}",
+                        "@sp": "%X{spanId}",
+                        "ConnectionId": "%X{connectionId}",
+                        "CorrelationId": "%X{correlationId}",
+                        "Elapsed": "%X{elapsed}",
+                        "RequestId": "%X{requestId}",
+                        "RequestMethod": "%X{requestMethod}",
+                        "RequestPath": "%X{requestPath}",
+                        "RequestBody": "%X{requestBody}",
+                        "SourceContext": "%X{sourceContext}",
+                        "StatusCode": "%X{statusCode}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="SEQ" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ERROR_FILE" />
+    </root>
+
+    <logger name="org.springframework.web" level="DEBUG"/>
+</configuration>

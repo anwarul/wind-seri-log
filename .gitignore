@@ -18,7 +18,9 @@
 .settings
 .springBeans
 .vscode
+.idea/
 /code
+/logs
 MANIFEST.MF
 _site/
 activemq-data
